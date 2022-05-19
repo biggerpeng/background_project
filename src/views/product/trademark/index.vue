@@ -10,8 +10,10 @@
         </template>
       </el-table-column>
       <el-table-column prop="prop" label="操作" width="width">
-        <el-button type="warning" icon="el-icon-edit" size="mini" @click="updateTradeMark">修改 </el-button>
-        <el-button type="danger" icon="el-icon-delete" size="mini">删除</el-button>
+        <template v-slot="{ row }">
+          <el-button type="warning" icon="el-icon-edit" size="mini" @click="updateTradeMark(row)">修改 </el-button>
+          <el-button type="danger" icon="el-icon-delete" size="mini">删除</el-button>
+        </template>
       </el-table-column>
     </el-table>
     <el-pagination
@@ -90,8 +92,9 @@
         this.tmForm = { tmName: '', logoUrl: '' }
       },
       // 修改按钮
-      updateTradeMark() {
+      updateTradeMark(row) {
         this.showDialog()
+        this.tmForm = { ...row }
       },
       // 图片上传成功后执行的函数
       handleAvatarSuccess(res) {
@@ -116,7 +119,7 @@
       async addOrUpdateTradeMark() {
         const result = await this.$API.tradeMark.reqAddOrUpdateTradeMark(this.tmForm)
         if (result.code === 200) {
-          this.$message(this.tmForm.id ? '修改品牌成功' : '添加品牌成功')
+          this.$message.success(this.tmForm.id ? '修改品牌成功' : '添加品牌成功')
           this.dialogFormVisible = false
           this.getData()
         }
