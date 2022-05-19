@@ -28,12 +28,12 @@
     >
     </el-pagination>
 
-    <el-dialog title="添加品牌" :visible.sync="dialogFormVisible">
-      <el-form style="width: 80%" :model="tmForm">
-        <el-form-item label="品牌名称" label-width="100px">
+    <el-dialog :title="tmForm.id ? '修改品牌' : '添加品牌'" :visible.sync="dialogFormVisible">
+      <el-form style="width: 80%" :model="tmForm" :rules="rules" ref="ruleForm">
+        <el-form-item label="品牌名称" label-width="100px" prop="tmName">
           <el-input autocomplete="off" v-model="tmForm.tmName"></el-input>
         </el-form-item>
-        <el-form-item label="品牌LOGO" label-width="100px">
+        <el-form-item label="品牌LOGO" label-width="100px" prop="logoUrl">
           <el-upload
             class="avatar-uploader"
             action="/dev-api/admin/product/fileUpload"
@@ -69,6 +69,14 @@
         tmForm: {
           tmName: '',
           logoUrl: ''
+        },
+        // 表单验证规则
+        rules: {
+          tmName: [
+            { required: true, message: '请输入品牌名称', trigger: 'blur' },
+            { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'change' }
+          ],
+          logoUrl: [{ required: true, message: '请选择品牌图片' }]
         }
       }
     },
@@ -116,13 +124,17 @@
         return isJPG && isLt2M
       },
       // 确认添加或修改
-      async addOrUpdateTradeMark() {
-        const result = await this.$API.tradeMark.reqAddOrUpdateTradeMark(this.tmForm)
-        if (result.code === 200) {
-          this.$message.success(this.tmForm.id ? '修改品牌成功' : '添加品牌成功')
-          this.dialogFormVisible = false
-          this.getData()
-        }
+      addOrUpdateTradeMark() {
+        this.$refs.ruleForm.validate(async success => {
+          if (success) {
+            const result = await this.$API.tradeMark.reqAddOrUpdateTradeMark(this.tmForm)
+            if (result.code === 200) {
+              this.$message.success(this.tmForm.id ? '修改品牌成功' : '添加品牌成功')
+              this.dialogFormVisible = false
+              this.getData(this.tmForm.id ? this.page : 1)
+            }
+          }
+        })
       }
     }
   }
