@@ -4,9 +4,10 @@
       <CategorySelect @getCategoryId="getCategoryId"></CategorySelect>
     </el-card>
     <el-card>
+      <!-- 属性表格结构 -->
       <div v-show="isShowTable">
         <el-button type="primary" icon="el-icon-plus" :disabled="!categoryId.category3Id" @click="addOrChangeAttr"> 添加</el-button>
-        <el-table :data="attrList" style="width: 100%" border>
+        <el-table :data="attrList" style="width: 100%; margin: 20px 0" border>
           <el-table-column type="index" label="序号" width="100px" align="center"> </el-table-column>
           <el-table-column prop="attrName" label="属性名称" width="150px"> </el-table-column>
           <el-table-column label="属性值列表" width="width">
@@ -25,10 +26,11 @@
           </el-table-column>
         </el-table>
       </div>
+      <!-- 修改或添加属性结构 -->
       <div v-show="!isShowTable">
-        <el-form :inline="true" ref="form" label-width="80px">
+        <el-form :inline="true" ref="form" label-width="80px" :model="attrInfo">
           <el-form-item label="属性名">
-            <el-input placeholder="请输入属性名"></el-input>
+            <el-input placeholder="请输入属性名" v-model="attrInfo.attrName"></el-input>
           </el-form-item>
         </el-form>
         <el-button type="primary" icon="el-icon-plus">添加属性值</el-button>
@@ -52,7 +54,15 @@
       return {
         categoryId: {},
         attrList: [],
-        isShowTable: true
+        // 决定属性表格是否展示
+        isShowTable: false,
+        // 添加或修改属性需要发送的数据
+        attrInfo: {
+          attrName: '',
+          attrValueList: [],
+          categoryId: 0,
+          categoryLevel: 3
+        }
       }
     },
     methods: {
