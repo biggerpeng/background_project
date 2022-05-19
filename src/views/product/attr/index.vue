@@ -1,5 +1,8 @@
 <template>
-  <div>attr组件</div>
+  <div>
+    <CategorySelect></CategorySelect>
+    <el-card> </el-card>
+  </div>
 </template>
 
 <script>

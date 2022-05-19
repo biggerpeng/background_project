@@ -12,7 +12,7 @@
       <el-table-column prop="prop" label="操作" width="width">
         <template v-slot="{ row }">
           <el-button type="warning" icon="el-icon-edit" size="mini" @click="updateTradeMark(row)">修改 </el-button>
-          <el-button type="danger" icon="el-icon-delete" size="mini">删除</el-button>
+          <el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteTradeMark(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -59,6 +59,14 @@
   export default {
     name: 'TradeMark',
     data() {
+      // elementUI自定义表单验证规则
+      var validateTmName = (rule, value, callback) => {
+        if (value.length < 2 || value.length > 10) {
+          callback(new Error('品牌名称2-10位'))
+        } else {
+          callback()
+        }
+      }
       return {
         page: 1,
         limit: 3,
@@ -74,7 +82,8 @@
         rules: {
           tmName: [
             { required: true, message: '请输入品牌名称', trigger: 'blur' },
-            { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'change' }
+            // { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'change' },
+            { validator: validateTmName, trigger: 'change' } //或者使用自定义表单验证规则
           ],
           logoUrl: [{ required: true, message: '请选择品牌图片' }]
         }
@@ -135,6 +144,27 @@
             }
           }
         })
+      },
+      deleteTradeMark(row) {
+        this.$confirm('此操作将永久删除该品牌, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+          .then(async () => {
+            await this.$API.tradeMark.reqDeleteTradeMark(row.id)
+            this.getData(this.list.length > 1 ? this.page : this.page - 1)
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
+          })
+          .catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            })
+          })
       }
     }
   }
