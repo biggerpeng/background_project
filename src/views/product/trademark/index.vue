@@ -27,13 +27,19 @@
     </el-pagination>
 
     <el-dialog title="添加品牌" :visible.sync="dialogFormVisible">
-      <el-form style="width: 80%">
+      <el-form style="width: 80%" :model="tmForm">
         <el-form-item label="品牌名称" label-width="100px">
-          <el-input autocomplete="off"></el-input>
+          <el-input autocomplete="off" v-model="tmForm.tmName"></el-input>
         </el-form-item>
         <el-form-item label="品牌LOGO" label-width="100px">
-          <el-upload class="avatar-uploader" action="https://jsonplaceholder.typicode.com/posts/" :show-file-list="false">
-            <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+          <el-upload
+            class="avatar-uploader"
+            action="/dev-api/admin/product/fileUpload"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload"
+          >
+            <img v-if="tmForm.logoUrl" :src="tmForm.logoUrl" class="avatar" />
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
             <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
           </el-upload>
@@ -41,7 +47,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+        <el-button type="primary" @click="addOrUpdateTradeMark">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -58,7 +64,10 @@
         list: [],
         // 显示隐藏对话框
         dialogFormVisible: false,
-        imageUrl: ''
+        tmForm: {
+          tmName: '',
+          logoUrl: ''
+        }
       }
     },
     mounted() {
@@ -75,11 +84,42 @@
         this.limit = size
         this.getData()
       },
+      // 添加按钮
       showDialog() {
         this.dialogFormVisible = true
+        this.tmForm = { tmName: '', logoUrl: '' }
       },
+      // 修改按钮
       updateTradeMark() {
         this.showDialog()
+      },
+      // 图片上传成功后执行的函数
+      handleAvatarSuccess(res) {
+        if (res.code === 200) {
+          this.tmForm.logoUrl = res.data
+        }
+      },
+      // 图片上传之前
+      beforeAvatarUpload(file) {
+        const isJPG = file.type === 'image/png'
+        const isLt2M = file.size / 1024 / 1024 < 2
+
+        if (!isJPG) {
+          this.$message.error('上传头像图片只能是 png 格式!')
+        }
+        if (!isLt2M) {
+          this.$message.error('上传头像图片大小不能超过 2MB!')
+        }
+        return isJPG && isLt2M
+      },
+      // 确认添加或修改
+      async addOrUpdateTradeMark() {
+        const result = await this.$API.tradeMark.reqAddOrUpdateTradeMark(this.tmForm)
+        if (result.code === 200) {
+          this.$message(this.tmForm.id ? '修改品牌成功' : '添加品牌成功')
+          this.dialogFormVisible = false
+          this.getData()
+        }
       }
     }
   }
