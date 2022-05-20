@@ -28,8 +28,8 @@ export const reqGetAttr = ({ category1Id, category2Id, category3Id }) =>
     method: 'get'
   })
 
-// 添加属性与属性值
-export const reqAddAttr = data =>
+// 添加或更新属性
+export const reqAddOrUpdateAttr = data =>
   request({
     url: '/admin/product/saveAttrInfo',
     method: 'post',
