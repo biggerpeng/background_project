@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-card style="margin: 20px 0">
-      <CategorySelect @getCategoryId="getCategoryId"></CategorySelect>
+      <CategorySelect @getCategoryId="getCategoryId" :show="!isShowTable"></CategorySelect>
     </el-card>
     <el-card>
       <!-- 属性表格结构 -->
@@ -60,7 +60,7 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-button type="primary" @click="saveAttr">保存</el-button>
+        <el-button type="primary" @click="saveAttr" :disabled="!this.attrInfo.attrValueList.length">保存</el-button>
         <el-button @click="cancel">取消</el-button>
       </div>
     </el-card>
@@ -173,6 +173,7 @@
           delete item.flag
           return item.valueName !== ''
         })
+        if (!this.attrInfo.attrValueList.length) return
         //发送网络请求
         try {
           await this.$API.attr.reqAddOrUpdateAttr(this.attrInfo)
