@@ -7,3 +7,28 @@ export const reqSpuList = (page, limit, category3Id) =>
     method: 'get',
     params: { category3Id }
   })
+
+// 获取品牌数据 /admin/product/baseTrademark/getTrademarkList
+export const reqTrademarkList = () =>
+  request({
+    url: '/admin/product/baseTrademark/getTrademarkList',
+    method: 'get'
+  })
+// 获取销售属性 /admin/product/baseSaleAttrList
+export const reqSaleAttrList = () =>
+  request({
+    url: '/admin/product/baseSaleAttrList',
+    method: 'get'
+  })
+// 获取某一个spu信息 /admin/product/getSpuById/{id}
+export const reqSpuById = spuId =>
+  request({
+    url: `/admin/product/getSpuById/${spuId}`,
+    method: 'get'
+  })
+// 获取spu图片 /admin/product/spuImageList/{id}
+export const reqImageList = spuId =>
+  request({
+    url: `/admin/product/spuImageList/${spuId}`,
+    method: 'get'
+  })
