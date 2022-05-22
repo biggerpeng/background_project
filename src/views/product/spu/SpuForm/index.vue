@@ -37,7 +37,13 @@
           <el-table-column prop="saleAttrName" label="属性名" width="width"> </el-table-column>
           <el-table-column prop="prop" label="属性值名称列表" width="width">
             <template v-slot="{ row }">
-              <el-tag :key="tag.id" v-for="tag in row.spuSaleAttrValueList" closable :disable-transitions="false" @close="handleClose(tag)">
+              <el-tag
+                :key="tag.id"
+                v-for="(tag, index) in row.spuSaleAttrValueList"
+                closable
+                :disable-transitions="false"
+                @close="handleClose(row.spuSaleAttrValueList, index)"
+              >
                 {{ tag.saleAttrValueName }}
               </el-tag>
               <el-input
@@ -54,8 +60,8 @@
             </template>
           </el-table-column>
           <el-table-column prop="prop" label="操作" width="width">
-            <template v-slot="{ row }">
-              <el-button type="danger" size="mini" icon="el-icon-delete"></el-button>
+            <template v-slot="{ $index }">
+              <el-button type="danger" size="mini" icon="el-icon-delete" @click="deleteAttr($index)"></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -143,10 +149,10 @@
         const imageListResult = await this.$API.spu.reqImageList(row.id)
         if (imageListResult.code === 200) {
           /*  imageListResult.data.forEach(item => {
-                                                                                                                                      item.name = item.imgName
-                                                                                                                                      item.url = item.imgUrl
-                                                                                                                                    })
-                                                                                                                                    this.imageList = imageListResult.data */
+                                                                                                                                                        item.name = item.imgName
+                                                                                                                                                        item.url = item.imgUrl
+                                                                                                                                                      })
+                                                                                                                                                      this.imageList = imageListResult.data */
           this.imageList = imageListResult.data.map(item => {
             return {
               name: item.imgName,
@@ -177,6 +183,14 @@
         // 添加数据
         row.spuSaleAttrValueList.push({ baseSaleAttrId, saleAttrValueName })
         row.inputVisible = false
+      },
+      // 删除属性值
+      handleClose(spuSaleAttrValueList, index) {
+        spuSaleAttrValueList.splice(index, 1)
+      },
+      // 删除属性
+      deleteAttr(index) {
+        this.spuInfo.spuSaleAttrList.splice(index, 1)
       }
     },
     computed: {

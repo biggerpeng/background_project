@@ -1,6 +1,6 @@
 <template>
   <div>
-    <CategorySelect @getCategoryId="getCategoryId" :show="!isShowTable"></CategorySelect>
+    <CategorySelect @getCategoryId="getCategoryId" :show="scene"></CategorySelect>
     <el-card>
       <div v-show="scene === 0">
         <el-button type="primary" icon="el-icon-plus" @click="addSpu" :disabled="!categoryId.category3Id">添加SPU</el-button>
@@ -43,7 +43,6 @@
     data() {
       return {
         categoryId: {},
-        isShowTable: true, //控制表格面板和三级联动是否可用
         page: 1,
         limit: 5,
         records: [],
