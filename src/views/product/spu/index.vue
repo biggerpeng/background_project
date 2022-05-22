@@ -13,7 +13,9 @@
               <HintButton type="success" icon="el-icon-plus" size="mini" title="添加spu"></HintButton>
               <HintButton type="warning" icon="el-icon-edit" size="mini" title="修改spu" @click="updateSpu(row)"></HintButton>
               <HintButton type="info" icon="el-icon-info" size="mini" title="spu信息"></HintButton>
-              <HintButton type="danger" icon="el-icon-delete" size="mini" title="删除spu"></HintButton>
+              <el-popconfirm title="确定删除吗？" @onConfirm="deleteSpu(row)">
+                <HintButton type="danger" icon="el-icon-delete" size="mini" title="删除spu" slot="reference"></HintButton>
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
@@ -73,6 +75,7 @@
       // 添加spu
       addSpu() {
         this.scene = 1
+        this.$refs.SpuForm.initAddSpuData(this.categoryId.category3Id)
       },
       // 修改spu
       updateSpu(row) {
@@ -80,9 +83,21 @@
         this.$refs.SpuForm.initSpuData(row)
       },
       // 取消spu编辑时
-      goScene(scene) {
+      goScene({ scene, type }) {
         this.scene = scene
-        this.getSpuList(this.page)
+        if (type === '修改') {
+          this.getSpuList(this.page)
+        } else {
+          this.getSpuList()
+        }
+      },
+      // 删除spu
+      async deleteSpu(row) {
+        const result = await this.$API.spu.reqDeleteSpu(row.id)
+        if (result.code === 200) {
+          this.$message.success('删除成功')
+          this.getSpuList(this.records.length > 1 ? this.page : this.page - 1)
+        }
       }
     },
     components: {

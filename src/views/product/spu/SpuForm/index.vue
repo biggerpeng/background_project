@@ -68,7 +68,7 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="saveSkuInfo">保存</el-button>
-        <el-button @click="goScene(0)">取消</el-button>
+        <el-button @click="goScene({ scene: 0, type: '' })">取消</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -89,21 +89,9 @@
         spuInfo: {
           spuName: '',
           description: '',
-          category3Id: 0,
-          tmId: 0,
-          spuSaleAttrList: [
-            {
-              id: 11,
-              spuId: 6,
-              baseSaleAttrId: 1,
-              saleAttrName: '颜色',
-              spuSaleAttrValueList: [
-                { id: 25, spuId: 6, baseSaleAttrId: 1, saleAttrValueName: '黑', saleAttrName: '颜色', isChecked: null },
-                { id: 26, spuId: 6, baseSaleAttrId: 1, saleAttrValueName: '青', saleAttrName: '颜色', isChecked: null },
-                { id: 27, spuId: 6, baseSaleAttrId: 1, saleAttrValueName: '蓝', saleAttrName: '颜色', isChecked: null }
-              ]
-            }
-          ],
+          category3Id: '',
+          tmId: '',
+          spuSaleAttrList: [],
           spuImageList: []
         },
         imageList: [], //整理后的图片数据
@@ -130,10 +118,14 @@
         this.dialogVisible = true
       },
 
-      goScene(scene) {
-        this.$emit('goScene', scene) //注意抛出的事件要写成字符串，不然会被当作变量
+      // 切换场景
+      goScene(options) {
+        this.$emit('goScene', options) //注意抛出的事件要写成字符串，不然会被当作变量
+        // 清楚数据
+        // this._data = this.$options.data()这样无效
+        Object.assign(this._data, this.$options.data()) //可行，应该是响应式的问题
       },
-      // 获取spu数据
+      // 修改时获取spu数据
       async initSpuData(row) {
         // 获取品牌数据
         const trademarkListResult = await this.$API.spu.reqTrademarkList()
@@ -148,10 +140,10 @@
         const imageListResult = await this.$API.spu.reqImageList(row.id)
         if (imageListResult.code === 200) {
           /*  imageListResult.data.forEach(item => {
-                                                                                                                                                                                        item.name = item.imgName
-                                                                                                                                                                                        item.url = item.imgUrl
-                                                                                                                                                                                      })
-                                                                                                                                                                                      this.imageList = imageListResult.data */
+                                                                                                                                                                                                                                item.name = item.imgName
+                                                                                                                                                                                                                                item.url = item.imgUrl
+                                                                                                                                                                                                                              })
+                                                                                                                                                                                                                              this.imageList = imageListResult.data */
           this.imageList = imageListResult.data.map(item => {
             return {
               name: item.imgName,
@@ -159,6 +151,17 @@
             }
           })
         }
+      },
+      // 添加时获取spu数据
+      async initAddSpuData(category3Id) {
+        // 设置categoryId
+        this.spuInfo.category3Id = category3Id
+        // 获取品牌数据
+        const trademarkListResult = await this.$API.spu.reqTrademarkList()
+        if (trademarkListResult.code === 200) this.trademarkList = trademarkListResult.data
+        // 获取销售属性
+        const saleAttrListResult = await this.$API.spu.reqSaleAttrList()
+        if (saleAttrListResult.code === 200) this.saleAttrList = saleAttrListResult.data
       },
       // 添加销售属性
       addAttr() {
@@ -203,7 +206,7 @@
         // 发请求
         const result = await this.$API.spu.reqAddOrUpdateSpu(this.spuInfo)
         if (result.code === 200) {
-          this.goScene(0)
+          this.goScene({ scene: 0, type: this.spuInfo.id ? '修改' : '添加' })
           this.$message.success('保存成功')
         }
       }
