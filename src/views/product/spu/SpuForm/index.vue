@@ -45,12 +45,12 @@
                 v-if="row.inputVisible"
                 ref="saveTagInput"
                 size="small"
-                @keyup.enter.native="handleInputConfirm"
-                @blur="handleInputConfirm"
+                v-model="row.inputValue"
+                @keyup.enter.native="handleInputConfirm(row)"
+                @blur="handleInputConfirm(row)"
               >
               </el-input>
-              <!-- @click="showInput" -->
-              <el-button v-else class="button-new-tag" size="small">添加</el-button>
+              <el-button v-else class="button-new-tag" size="small" @click="addAttrValue(row)">添加</el-button>
             </template>
           </el-table-column>
           <el-table-column prop="prop" label="操作" width="width">
@@ -143,10 +143,10 @@
         const imageListResult = await this.$API.spu.reqImageList(row.id)
         if (imageListResult.code === 200) {
           /*  imageListResult.data.forEach(item => {
-                                                                                                item.name = item.imgName
-                                                                                                item.url = item.imgUrl
-                                                                                              })
-                                                                                              this.imageList = imageListResult.data */
+                                                                                                                                      item.name = item.imgName
+                                                                                                                                      item.url = item.imgUrl
+                                                                                                                                    })
+                                                                                                                                    this.imageList = imageListResult.data */
           this.imageList = imageListResult.data.map(item => {
             return {
               name: item.imgName,
@@ -159,6 +159,24 @@
       addAttr() {
         const [baseSaleAttrId, saleAttrName] = this.attrIdAndName.split(':')
         this.spuInfo.spuSaleAttrList.push({ baseSaleAttrId, saleAttrName, spuSaleAttrValueList: [] })
+        this.attrIdAndName = ''
+      },
+      // 添加销售属性值
+      addAttrValue(row) {
+        this.$set(row, 'inputVisible', true)
+        this.$set(row, 'inputValue', '')
+      },
+      // 新增属性值input失去焦点时
+      handleInputConfirm(row) {
+        const { baseSaleAttrId, inputValue: saleAttrValueName } = row
+        // 处理空值
+        if (!saleAttrValueName.trim()) return this.$message.error('属性值不能为空')
+        // 处理重复
+        const noRepeat = row.spuSaleAttrValueList.every(item => item.saleAttrValueName !== saleAttrValueName)
+        if (!noRepeat) return this.$message.error('属性值不能重复')
+        // 添加数据
+        row.spuSaleAttrValueList.push({ baseSaleAttrId, saleAttrValueName })
+        row.inputVisible = false
       }
     },
     computed: {
