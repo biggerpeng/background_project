@@ -28,10 +28,10 @@
         </el-dialog>
       </el-form-item>
       <el-form-item label="销售属性">
-        <el-select value="" :placeholder="`还有${unSelectSaleAttr.length}未选择`" v-model="attrId">
-          <el-option :label="attr.name" :value="attr.id" v-for="attr in unSelectSaleAttr" :key="attr.id"></el-option>
+        <el-select value="" :placeholder="`还有${unSelectSaleAttr.length}未选择`" v-model="attrIdAndName">
+          <el-option :label="attr.name" :value="`${attr.id}:${attr.name}`" v-for="attr in unSelectSaleAttr" :key="attr.id"></el-option>
         </el-select>
-        <el-button type="primary" icon="el-icon-plus" :disabled="!attrId">添加销售属性</el-button>
+        <el-button type="primary" icon="el-icon-plus" :disabled="!attrIdAndName" @click="addAttr">添加销售属性</el-button>
         <el-table style="width: 100%" border :data="spuInfo.spuSaleAttrList">
           <el-table-column type="index" label="序号" width="80" align="center"> </el-table-column>
           <el-table-column prop="saleAttrName" label="属性名" width="width"> </el-table-column>
@@ -101,7 +101,7 @@
           spuImageList: []
         },
         imageList: [], //整理后的图片数据
-        attrId: '' //收集未选择属性的id
+        attrIdAndName: '' //收集未选择属性的id
       }
     },
     methods: {
@@ -143,10 +143,10 @@
         const imageListResult = await this.$API.spu.reqImageList(row.id)
         if (imageListResult.code === 200) {
           /*  imageListResult.data.forEach(item => {
-                                                                                      item.name = item.imgName
-                                                                                      item.url = item.imgUrl
-                                                                                    })
-                                                                                    this.imageList = imageListResult.data */
+                                                                                                item.name = item.imgName
+                                                                                                item.url = item.imgUrl
+                                                                                              })
+                                                                                              this.imageList = imageListResult.data */
           this.imageList = imageListResult.data.map(item => {
             return {
               name: item.imgName,
@@ -154,6 +154,11 @@
             }
           })
         }
+      },
+      // 添加销售属性
+      addAttr() {
+        const [baseSaleAttrId, saleAttrName] = this.attrIdAndName.split(':')
+        this.spuInfo.spuSaleAttrList.push({ baseSaleAttrId, saleAttrName, spuSaleAttrValueList: [] })
       }
     },
     computed: {
