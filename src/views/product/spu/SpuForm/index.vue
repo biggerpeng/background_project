@@ -67,8 +67,8 @@
         </el-table>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary">保存</el-button>
-        <el-button @click="goScene">取消</el-button>
+        <el-button type="primary" @click="saveSkuInfo">保存</el-button>
+        <el-button @click="goScene(0)">取消</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -113,7 +113,6 @@
     methods: {
       // 图片墙相关
       handleAdd(response, file, fileList) {
-        console.log(response, file, fileList)
         if (response.code === 200) {
           this.imageList = fileList
         } else {
@@ -131,8 +130,8 @@
         this.dialogVisible = true
       },
 
-      goScene() {
-        this.$emit('goScene', 0) //注意抛出的事件要写成字符串，不然会被当作变量
+      goScene(scene) {
+        this.$emit('goScene', scene) //注意抛出的事件要写成字符串，不然会被当作变量
       },
       // 获取spu数据
       async initSpuData(row) {
@@ -149,10 +148,10 @@
         const imageListResult = await this.$API.spu.reqImageList(row.id)
         if (imageListResult.code === 200) {
           /*  imageListResult.data.forEach(item => {
-                                                                                                                                                        item.name = item.imgName
-                                                                                                                                                        item.url = item.imgUrl
-                                                                                                                                                      })
-                                                                                                                                                      this.imageList = imageListResult.data */
+                                                                                                                                                                                        item.name = item.imgName
+                                                                                                                                                                                        item.url = item.imgUrl
+                                                                                                                                                                                      })
+                                                                                                                                                                                      this.imageList = imageListResult.data */
           this.imageList = imageListResult.data.map(item => {
             return {
               name: item.imgName,
@@ -191,6 +190,22 @@
       // 删除属性
       deleteAttr(index) {
         this.spuInfo.spuSaleAttrList.splice(index, 1)
+      },
+      // 保存添加、修改spu
+      async saveSkuInfo() {
+        // 整理参数
+        this.spuInfo.spuImageList = this.imageList.map(item => {
+          return {
+            imgName: item.name,
+            imgUrl: item.response?.data || item.url
+          }
+        })
+        // 发请求
+        const result = await this.$API.spu.reqAddOrUpdateSpu(this.spuInfo)
+        if (result.code === 200) {
+          this.goScene(0)
+          this.$message.success('保存成功')
+        }
       }
     },
     computed: {

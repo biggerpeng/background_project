@@ -32,3 +32,12 @@ export const reqImageList = spuId =>
     url: `/admin/product/spuImageList/${spuId}`,
     method: 'get'
   })
+
+// 修改或添加spu
+export const reqAddOrUpdateSpu = skuInfo => {
+  if (skuInfo.id) {
+    return request({ url: '/admin/product/updateSpuInfo', method: 'post', data: skuInfo })
+  } else {
+    return request({ url: '/admin/product/saveSpuInfo', method: 'post', data: skuInfo })
+  }
+}

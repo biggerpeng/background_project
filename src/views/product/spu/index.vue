@@ -1,6 +1,6 @@
 <template>
   <div>
-    <CategorySelect @getCategoryId="getCategoryId" :show="scene"></CategorySelect>
+    <CategorySelect @getCategoryId="getCategoryId" :show="!!scene"></CategorySelect>
     <el-card>
       <div v-show="scene === 0">
         <el-button type="primary" icon="el-icon-plus" @click="addSpu" :disabled="!categoryId.category3Id">添加SPU</el-button>
@@ -82,6 +82,7 @@
       // 取消spu编辑时
       goScene(scene) {
         this.scene = scene
+        this.getSpuList(this.page)
       }
     },
     components: {
