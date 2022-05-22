@@ -10,7 +10,7 @@
           <el-table-column prop="description" label="spu描述" width="width"> </el-table-column>
           <el-table-column prop="prop" label="操作" width="width">
             <template v-slot="{ row }">
-              <HintButton type="success" icon="el-icon-plus" size="mini" title="添加spu"></HintButton>
+              <HintButton type="success" icon="el-icon-plus" size="mini" title="添加sku" @click="addSku(row)"></HintButton>
               <HintButton type="warning" icon="el-icon-edit" size="mini" title="修改spu" @click="updateSpu(row)"></HintButton>
               <HintButton type="info" icon="el-icon-info" size="mini" title="spu信息"></HintButton>
               <el-popconfirm title="确定删除吗？" @onConfirm="deleteSpu(row)">
@@ -32,7 +32,7 @@
         </el-pagination>
       </div>
       <SpuForm v-show="scene === 1" @goScene="goScene" ref="SpuForm"></SpuForm>
-      <SkuForm v-show="scene === 2"></SkuForm>
+      <SkuForm v-show="scene === 2" ref="SkuForm"></SkuForm>
     </el-card>
   </div>
 </template>
@@ -49,7 +49,7 @@
         limit: 5,
         records: [],
         total: 1,
-        scene: 2 //0代表显示spu列表  1代表显示添加或修改spu  2代表添加sku
+        scene: 0 //0代表显示spu列表  1代表显示添加或修改spu  2代表添加sku
       }
     },
     methods: {
@@ -98,6 +98,11 @@
           this.$message.success('删除成功')
           this.getSpuList(this.records.length > 1 ? this.page : this.page - 1)
         }
+      },
+      // 添加sku
+      addSku(spu) {
+        this.scene = 2
+        this.$refs.SkuForm.getData(spu, this.categoryId)
       }
     },
     components: {
