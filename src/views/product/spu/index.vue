@@ -49,7 +49,7 @@
         limit: 5,
         records: [],
         total: 1,
-        scene: 0 //0代表显示spu列表  1代表显示添加或修改spu  2代表添加sku
+        scene: 2 //0代表显示spu列表  1代表显示添加或修改spu  2代表添加sku
       }
     },
     methods: {
