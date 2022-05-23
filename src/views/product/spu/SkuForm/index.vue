@@ -61,8 +61,8 @@
         </el-table>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary">保存</el-button>
-        <el-button>取消</el-button>
+        <el-button type="primary" @click="save">保存</el-button>
+        <el-button @click="cancel">取消</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -140,6 +140,46 @@
         })
         row.isDefault = 1
         this.skuInfo.skuDefaultImg = row.imgUrl
+      },
+      // 取消保存
+      cancel() {
+        this.$emit('goScene', { scene: 0, type: '添加sku' })
+        Object.assign(this._data, this.$options.data())
+      },
+      // 保存添加
+      async save() {
+        // 整理数据
+        // 平台属性
+        this.skuInfo.skuAttrValueList = this.AttrInfoList.reduce((pre, next) => {
+          if (next.attrIdAndValueId) {
+            const [attrId, valueId] = next.attrIdAndValueId.split(':')
+            // return pre.push({ attrId, valueId }) 不能在这里return，因为reduce需要每一次循环都return，否则会出错
+            pre.push({ attrId, valueId })
+          }
+          return pre
+        }, [])
+        // 销售属性
+        this.skuInfo.skuSaleAttrValueList = this.spuSaleAttrList.reduce((pre, next) => {
+          if (next.attrIdAndValueId) {
+            const [saleAttrId, saleAttrValueId] = next.attrIdAndValueId.split(':')
+            pre.push({ saleAttrId, saleAttrValueId })
+          }
+          return pre
+        }, [])
+        // 图片
+        this.skuImageList = this.imageList.map(item => {
+          return {
+            imgName: item.imgName,
+            imgUrl: item.imgUrl,
+            isDefault: item.isDefault,
+            spuImgId: item.id
+          }
+        })
+        const result = await this.$API.spu.reqAddSku(this.skuInfo)
+        if (result.code === 200) {
+          this.$message.success('保存成功')
+          this.$emit('goScene', { scene: 0, type: '保存sku' })
+        }
       }
     }
   }

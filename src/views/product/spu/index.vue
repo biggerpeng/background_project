@@ -12,7 +12,7 @@
             <template v-slot="{ row }">
               <HintButton type="success" icon="el-icon-plus" size="mini" title="添加sku" @click="addSku(row)"></HintButton>
               <HintButton type="warning" icon="el-icon-edit" size="mini" title="修改spu" @click="updateSpu(row)"></HintButton>
-              <HintButton type="info" icon="el-icon-info" size="mini" title="spu信息"></HintButton>
+              <HintButton type="info" icon="el-icon-info" size="mini" title="spu信息" @click="handler(row)"></HintButton>
               <el-popconfirm title="确定删除吗？" @onConfirm="deleteSpu(row)">
                 <HintButton type="danger" icon="el-icon-delete" size="mini" title="删除spu" slot="reference"></HintButton>
               </el-popconfirm>
@@ -32,7 +32,20 @@
         </el-pagination>
       </div>
       <SpuForm v-show="scene === 1" @goScene="goScene" ref="SpuForm"></SpuForm>
-      <SkuForm v-show="scene === 2" ref="SkuForm"></SkuForm>
+      <SkuForm v-show="scene === 2" @goScene="goScene" ref="SkuForm"></SkuForm>
+      <!-- sku列表 -->
+      <el-dialog :title="spu.spuName" :visible.sync="dialogTableVisible">
+        <el-table :data="skuList" style="width: 100%" border v-loading="loading">
+          <el-table-column prop="skuName" label="名称" width="width"> </el-table-column>
+          <el-table-column prop="price" label="价格" width="width"> </el-table-column>
+          <el-table-column prop="weight" label="重量" width="width"> </el-table-column>
+          <el-table-column label="默认图片" width="width">
+            <template v-slot="{ row }">
+              <img :src="row.skuDefaultImg" style="height: 100px" />
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-dialog>
     </el-card>
   </div>
 </template>
@@ -49,7 +62,11 @@
         limit: 5,
         records: [],
         total: 1,
-        scene: 0 //0代表显示spu列表  1代表显示添加或修改spu  2代表添加sku
+        scene: 0, //0代表显示spu列表  1代表显示添加或修改spu  2代表添加sku
+        dialogTableVisible: false, //对话框
+        spu: {},
+        skuList: [],
+        loading: true
       }
     },
     methods: {
@@ -82,11 +99,12 @@
         this.scene = 1
         this.$refs.SpuForm.initSpuData(row)
       },
-      // 取消spu编辑时
+      // 取消或保存sku编辑时
       goScene({ scene, type }) {
         this.scene = scene
-        if (type === '修改') {
+        if (type === '修改' || '添加sku') {
           this.getSpuList(this.page)
+        } else if (type === '保存sku') {
         } else {
           this.getSpuList()
         }
@@ -103,6 +121,18 @@
       addSku(spu) {
         this.scene = 2
         this.$refs.SkuForm.getData(spu, this.categoryId)
+      },
+      // 查看sku列表
+      async handler(row) {
+        this.skuList = []
+        this.loading = true
+        this.spu = row
+        this.dialogTableVisible = true
+        const result = await this.$API.spu.reqSkuList(row.id)
+        if (result.code === 200) {
+          this.skuList = result.data
+        }
+        this.loading = false
       }
     },
     components: {
